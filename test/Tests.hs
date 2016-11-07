@@ -8,6 +8,7 @@ import System.Console.ANSI (Color(Black, Red, Green, Yellow, Blue, Magenta, Cyan
 import ExplodingI
 import Common
 import Shuffler
+import Game
 
 main :: IO ()
 main = hspecWith defaultConfig {configFastFail = True} specs
@@ -17,6 +18,7 @@ specs = describe "exploding" $ do
   interactiveSpecs
   commonSpecs
   shufflerSpecs
+  gameSpecs
 
 interactiveSpecs :: Spec
 interactiveSpecs = describe "explodingInteractive" $ do
@@ -70,39 +72,61 @@ shufflerSpecs = describe "Shuffler" $ do
   it "State has 56 cards" $ do
     length (deck demoState) `shouldBe` 56
   it "Shuffled to the same number of cards" $ do
-    pendingWith "Implement shuffleDeck function"
-    -- demoState' <- shuffleDeck demoState
-    -- length (deck demoState) `shouldBe` 56
+    --pendingWith "Implement shuffleDeck function"
+    demoState' <- shuffleDeck demoState
+    length (deck demoState) `shouldBe` 56
   it "Shuffled to different positions" $ do
     pendingWith "Implement shuffleDeck function"
-    -- let originalDeck = deck demoState
-    -- demoState' <- shuffleDeck demoState
-    -- (deck demoState') `shouldNotBe` originalDeck
+    let originalDeck = deck demoState
+    demoState' <- shuffleDeck demoState
+    (deck demoState') `shouldNotBe` originalDeck
 
 gameSpecs :: Spec
 gameSpecs = describe "Game" $ do
   describe "initGame" $ do
     it "should create 4 players" $ do
       pendingWith "Implement the initGame function"
-      --let gs = initGame 4
-      --length (players gs) `shouldBe` 4
-    it "should initialize the deck with 56 cards" $ do
-      pendingWith "Implement the initGame function"
-      --let gs = initGame 4
-      --length (deck gs) `shouldBe` 56
+      let gs = initGame 4
+      length (players gs) `shouldBe` 4
+    it "should initialize the deck with 46 cards" $ do
+      --pendingWith "Implement the initGame function"
+      let gs = initGame 4
+      length (deck gs) `shouldBe` 46
     it "should initialize discard pile to empty" $ do
       pendingWith "Implement the initGame function"
-      --let gs = initGame 4
-      --length (d_stack gs) `shouldBe` 0
+      let gs = initGame 4
+      length (d_stack gs) `shouldBe` 0
   describe "setupGame" $ do
     it "should shuffle the deck" $ do
       pendingWith "Implement the setupGame function"
-      -- let gs = initGame 4
-      -- gs' <- setupGame gs
+      let gs = initGame 4
+      gs' <- setupGame gs
+      (deck gs') `shouldNotBe` (deck gs)
+    it "should set the deck properly" $ do
+      pendingWith "Implement the setupGame function"
+      let gs = initGame 4
+      gs' <- setupGame gs
+      (length $ deck gs') `shouldBe` 35
+    it "should set the deck with enough exploding cards" $ do
+      pendingWith "Implement the setupGame function"
+      let gs = initGame 4
+      gs' <- setupGame gs
+      (length $ getCards (deck gs') ExplodingCard) `shouldBe` 3
+    it "should set the discard stack with 1 exploding card" $ do
+      pendingWith "Implement the setupGame function"
+      let gs = initGame 4
+      gs' <- setupGame gs
+      (length $ getCards (d_stack gs') ExplodingCard) `shouldBe` 1
+    it "each player should have 1 defuse card" $ do
+      pendingWith "Implement the setupGame function"
+      let gs = initGame 4
+      gs' <- setupGame gs
+      and (map (\p -> (length $ getCards (hand p) DefuseCard) == 1) $ players gs') `shouldBe` True
     it "should distribute cards to players" $ do
       pendingWith "Implement the setupGame function"
-      -- let gs = initGame 4
-      -- gs' <- setupGame gs
+      let gs = initGame 4
+      gs' <- setupGame gs
+      and (map (\p -> (length $ hand p) == initialCardCount) $ players gs') `shouldBe` True
 
 -- Test data fixtures
 --
