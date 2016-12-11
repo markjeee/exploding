@@ -16,7 +16,8 @@ data Card = DefuseCard
           | MelonCat
           | PotatoCat
           | BeardCat
-          | RainbowCat deriving (Eq, Show, Read)
+          | RainbowCat
+          | NoCard deriving (Eq, Show, Read)
 
 type Hand = [ Card ]
 type Deck = [ Card ]
@@ -26,11 +27,32 @@ data Player = HPlayer { name :: String,
                         hand :: Hand }
             | AiPlayer { name :: String,
                          hand :: Hand }
-            deriving (Show, Eq)
+            | NoPlayer { name :: String } deriving (Show, Eq)
+
+data Action = UseCard
+            | TakeFromDeck
+            | ContinuePlay
+            | EndTurn
+            | Exploded
+            | AttackNextPlayer
+            | Skip
+            | Favor
+            | Shuffle
+            | SeeTheFuture
+            | TwoOfAKind
+            | ThreeOfAKind
+            | FiveRandom deriving (Eq, Show, Read)
+
+endTurnActions = [ EndTurn, AttackNextPlayer ]
+
+noPlayer :: Player
+noPlayer = NoPlayer { name = "No Player" }
 
 data State = State { players :: [ Player ],
+                     e_players :: [ Player ],
                      deck :: Deck,
-                     d_stack :: D_Stack }
+                     d_stack :: D_Stack,
+                     cur_player :: Player }
 
 explodingCards = take 4 $ repeat ExplodingCard
 defuseCards = take 6 $ repeat DefuseCard
@@ -68,5 +90,15 @@ fullDeck = explodingCards ++ defuseCards ++ initDeck
 isCatCard :: Card -> Bool
 isCatCard c = c `elem` [ TacoCat, MelonCat, PotatoCat, BeardCat, RainbowCat ]
 
+isExplodingCard :: Card -> Bool
+isExplodingCard c = c `elem` explodingCards
+
 getCards :: Deck -> Card -> [ Card ]
 getCards d c = [ c' | c' <- d, c' == c ]
+
+takeCards :: [ Card ] -> Hand -> (Hand, Hand)
+takeCards [ card ] from = ([ card ], f1 ++ (drop 1 f2)) where
+  (f1, f2) = break (== card) from
+takeCards (card:rest) from = (t1 ++ t2, remaining) where
+  (t1, from') = takeCards [ card ] from
+  (t2, remaining) = takeCards rest from'
