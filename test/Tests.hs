@@ -86,11 +86,11 @@ shufflerSpecs = describe "Shuffler" $ do
   it "State has 56 cards" $ do
     length (deck demoState) `shouldBe` 56
   it "Shuffled to the same number of cards" $ do
-    pendingWith "Implement shuffleDeck function"
+    --pendingWith "Implement shuffleDeck function"
     demoState' <- shuffleDeck demoState
     length (deck demoState) `shouldBe` 56
   it "Shuffled to different positions" $ do
-    pendingWith "Implement shuffleDeck function"
+    --pendingWith "Implement shuffleDeck function"
     let originalDeck = deck demoState
     demoState' <- shuffleDeck demoState
     (deck demoState') `shouldNotBe` originalDeck
@@ -99,77 +99,77 @@ gameSpecs :: Spec
 gameSpecs = describe "Game" $ do
   describe "initGame" $ do
     it "should create 4 players" $ do
-      pendingWith "Implement the initGame function"
+      --pendingWith "Implement the initGame function"
       let gs = initGame numberOfTestPlayers
       length (players gs) `shouldBe` numberOfTestPlayers
     it "should initialize the deck with 46 cards" $ do
-      pendingWith "Implement the initGame function"
+      --pendingWith "Implement the initGame function"
       let gs = initGame numberOfTestPlayers
       length (deck gs) `shouldBe` 46
     it "should initialize discard pile to empty" $ do
-      pendingWith "Implement the initGame function"
+      --pendingWith "Implement the initGame function"
       let gs = initGame numberOfTestPlayers
       length (d_stack gs) `shouldBe` 0
     it "should set noPlayer as current player" $ do
-      pendingWith "Implement the initGame function"
+      --pendingWith "Implement the initGame function"
       let gs = initGame numberOfTestPlayers
       (cur_player gs) `shouldBe` noPlayer
 
   describe "setupGame" $ do
     it "should shuffle the deck" $ do
-      pendingWith "Implement the setupGame function"
+      --pendingWith "Implement the setupGame function"
       let gs = initGame numberOfTestPlayers
       gs' <- setupGame gs
       (deck gs') `shouldNotBe` (deck gs)
     it "should set the deck properly" $ do
-      pendingWith "Implement the setupGame function"
+      --pendingWith "Implement the setupGame function"
       let gs = initGame numberOfTestPlayers
       gs' <- setupGame gs
       (length $ deck gs') `shouldBe` 35
     it "should set the deck with enough exploding cards" $ do
-      pendingWith "Implement the setupGame function"
+      --pendingWith "Implement the setupGame function"
       let gs = initGame numberOfTestPlayers
       gs' <- setupGame gs
       (length $ getCards (deck gs') ExplodingCard) `shouldBe` 3
     it "should set the discard stack with 1 exploding card" $ do
-      pendingWith "Implement the setupGame function"
+      --pendingWith "Implement the setupGame function"
       let gs = initGame numberOfTestPlayers
       gs' <- setupGame gs
       (length $ getCards (d_stack gs') ExplodingCard) `shouldBe` 1
     it "each player should have 1 defuse card" $ do
-      pendingWith "Implement the setupGame function"
+      --pendingWith "Implement the setupGame function"
       let gs = initGame numberOfTestPlayers
       gs' <- setupGame gs
       and (map (\p -> (length $ getCards (hand p) DefuseCard) == 1) $ players gs') `shouldBe` True
     it "should distribute cards to players" $ do
-      pendingWith "Implement the setupGame function"
+      --pendingWith "Implement the setupGame function"
       let gs = initGame numberOfTestPlayers
       gs' <- setupGame gs
       and (map (\p -> (length $ hand p) == initialCardCount) $ players gs') `shouldBe` True
 
   describe "pickNextPlayer" $ do
     it "should pick first player" $ do
-      pendingWith "Implement getNextPlayer function"
+      --pendingWith "Implement getNextPlayer function"
       let gs = initGame numberOfTestPlayers
       gs' <- setupGame gs
       gs' <- pickNextPlayer gs'
       (cur_player gs') `shouldBe` (head $ (players gs'))
     it "should double pick second player" $ do
-      pendingWith "Implement getNextPlayer function"
+      --pendingWith "Implement getNextPlayer function"
       let gs = initGame numberOfTestPlayers
       gs' <- setupGame gs
       gs' <- pickNextPlayer gs'
       gs' <- pickNextPlayer gs'
       (cur_player gs') `shouldBe` ((players gs') !! 1)
     it "should turn around and pick first player" $ do
-      pendingWith "Implement getNextPlayer function"
+      --pendingWith "Implement getNextPlayer function"
       let gs = initGame numberOfTestPlayers
       gs' <- setupGame gs
       gs' <- updateCurPlayer gs' $ (players gs') !! 3
       gs' <- pickNextPlayer gs'
       (cur_player gs') `shouldBe` (head $ (players gs'))
     it "should declare an overall winner" $ do
-      pendingWith "Implement playerHasWon function"
+      --pendingWith "Implement playerHasWon function"
       let gs = initGame numberOfTestPlayers
       gs' <- setupGame gs
       gs' <- pickNextPlayer gs'
@@ -178,21 +178,21 @@ gameSpecs = describe "Game" $ do
 
   describe "explodePlayer" $ do
     it "should explode player" $ do
-      pendingWith "Implement explodePlayer function"
+      --pendingWith "Implement explodePlayer function"
       let gs = initGame numberOfTestPlayers
       gs' <- setupGame gs
       gs' <- pickNextPlayer gs'
       gs' <- explodePlayer gs'
       (length $ e_players gs') `shouldBe` 1
     it "should remove player from players" $ do
-      pendingWith "Implement explodePlayer function"
+      --pendingWith "Implement explodePlayer function"
       let gs = initGame numberOfTestPlayers
       gs' <- setupGame gs
       gs' <- pickNextPlayer gs'
       gs' <- explodePlayer gs'
       (length $ players gs') `shouldBe` (numberOfTestPlayers - 1)
     it "should set next player as current" $ do
-      pendingWith "Implement explorePlayer function"
+      --pendingWith "Implement explorePlayer function"
       let gs = initGame numberOfTestPlayers
       gs' <- setupGame gs
       gs' <- pickNextPlayer gs'
@@ -201,7 +201,7 @@ gameSpecs = describe "Game" $ do
 
   describe "takeFromHand" $ do
     it "should remove from current hand" $ do
-      pendingWith "Implement takeFromHand function"
+      --pendingWith "Implement takeFromHand function"
       let gs = initGame numberOfTestPlayers
       gs' <- setupGame gs
       gs' <- pickNextPlayer gs'
@@ -209,7 +209,7 @@ gameSpecs = describe "Game" $ do
       (action, gs') <- takeAction UseCard [ ShuffleCard ] gs'
       (cardInCurHand ShuffleCard gs') `shouldBe` False
     it "should move to discard hand" $ do
-      pendingWith "Implement takeFromHand function"
+      --pendingWith "Implement takeFromHand function"
       let gs = initGame numberOfTestPlayers
       gs' <- setupGame gs
       gs' <- pickNextPlayer gs'
@@ -219,7 +219,7 @@ gameSpecs = describe "Game" $ do
 
   describe "takeFromDeck" $ do
     it "should take 1 card and put in hand" $ do
-      pendingWith "Implement drawNCards function"
+      --pendingWith "Implement drawNCards function"
       let gs = initGame numberOfTestPlayers
       gs' <- setupGame gs
       gs' <- pickNextPlayer gs'
@@ -230,7 +230,7 @@ gameSpecs = describe "Game" $ do
         then (length $ curHand gs') `shouldBe` cur_hand_count - 1
         else (last $ (curHand gs')) `shouldBe` c0
     it "should take only 1 card from deck" $ do
-      pendingWith "Implement drawNCards function"
+      --pendingWith "Implement drawNCards function"
       let gs = initGame numberOfTestPlayers
       gs' <- setupGame gs
       gs' <- pickNextPlayer gs'
@@ -243,7 +243,7 @@ gameSpecs = describe "Game" $ do
 
   describe "useSimpleStrategy" $ do
     it "should always take card from deck" $ do
-      pendingWith "Implement useSimpleStrategy function"
+      --pendingWith "Implement useSimpleStrategy function"
       let gs = initGame numberOfTestPlayers
       gs' <- setupGame gs
       gs' <- pickNextPlayer gs'
@@ -252,14 +252,14 @@ gameSpecs = describe "Game" $ do
 
   describe "playCard" $ do
     it "should return EndTurn" $ do
-      pendingWith "Implemen the other tests first"
+      --pendingWith "Implemen the other tests first"
       let gs = initGame numberOfTestPlayers
       gs' <- setupGame gs
       gs' <- pickNextPlayer gs'
       (action, gs'') <- playPlayer gs' False
       action `shouldBe` EndTurn
     it "should return Exploded" $ do
-      pendingWith "Implement the other tests first"
+      --pendingWith "Implement the other tests first"
       let gs = initGame numberOfTestPlayers
       gs' <- setupGame gs
       gs' <- pickNextPlayer gs'
@@ -268,14 +268,14 @@ gameSpecs = describe "Game" $ do
       (action, gs') <- explodeOrEndTurn gs'
       action `shouldBe` Exploded
     it "should take card from deck" $ do
-      pendingWith "Implement the other tests first"
+      --pendingWith "Implement the other tests first"
       let gs = initGame numberOfTestPlayers
       gs' <- setupGame gs
       gs' <- pickNextPlayer gs'
       (action, gs'') <- takeFromDeck gs'
       (action `elem` [ EndTurn, Exploded, AttackNextPlayer ]) `shouldBe` True
     it "should end after other players are exploded" $ do
-      pendingWith "Implement the other first"
+      --pendingWith "Implement the other first"
       let gs = initGame numberOfTestPlayers
       gs' <- setupGame gs
       gs' <- pickNextPlayer gs'
@@ -287,7 +287,7 @@ gameSpecs = describe "Game" $ do
 
   describe "Game..." $ do
     it "should start and end" $ do
-      pendingWith "Implement other functions first, before enabling."
+      --pendingWith "Implement other functions first, before enabling."
       let gs = initGame numberOfTestPlayers
       gs' <- setupGame gs
       gs' <- startGame gs'

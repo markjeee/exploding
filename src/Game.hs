@@ -12,15 +12,21 @@ initialCardCount = 5
 initGame :: Int -> State
 
 -- TODO: Implement a method to initialize a new game given n players
-initGame n = State { players = [ ],
-                     e_players = [ ],
-                     deck = initDeck,
-                     d_stack = [ ],
-                     cur_player = noPlayer }
+initGame n | (n < 6 && n > 0) = State { players = generateHumanPlayers n,
+                                        e_players = [ ],
+                                        deck = initDeck,
+                                        d_stack = [ ],
+                                        cur_player = noPlayer }
+           | otherwise = error "Invalid number of players"
 
 -- TODO: Implement a method to setup the game
 setupGame :: State -> IO State
-setupGame gs = return (gs)
+setupGame gs = do
+  gs' <- shuffleDeck gs
+  gs' <- setupExplodingCards gs'
+  gs' <- setupDefuseCards gs'
+  gs' <- dealToAllPlayers (initialCardCount - 1) gs' $ players gs'
+  shuffleDeck gs'
 
 startGame :: State -> IO State
 startGame gs = pickNextAndPlay gs
@@ -44,9 +50,8 @@ playLoopNext gs next_action
   | next_action == AttackNextPlayer = attackAndPlay gs
   | otherwise = pickNextAndPlay gs
 
--- TODO: Implement this function
 playerHasWon :: State -> Bool
-playerHasWon gs = False
+playerHasWon gs = (length $ players gs) == 1
 
 explodeAndPlay :: State -> IO State
 explodeAndPlay gs = do
@@ -58,9 +63,12 @@ attackAndPlay gs = do
   gs' <- pickNextPlayer gs
   playLoop gs' True
 
--- TODO: Implement this function
 explodePlayer :: State -> IO State
-explodePlayer gs = return (gs)
+explodePlayer gs = do
+  let next_p = getNextPlayer gs (cur_player gs)
+  gs' <- discardExplodedHand gs
+  gs' <- moveToExploded gs'
+  updateCurPlayer gs' next_p
 
 discardExplodedHand :: State -> IO State
 discardExplodedHand gs = do
@@ -108,9 +116,10 @@ takeFromHandWithAction cards next_action gs = do
   gs' <- takeFromHand cards gs
   return (next_action, gs')
 
--- TODO: Implement this function
 takeFromHand :: [ Card ] -> State -> IO State
-takeFromHand cards gs = return (gs)
+takeFromHand cards gs = do
+  gs' <- removeFromCurHand cards gs
+  discardCards cards gs'
 
 takeFromDeck :: State -> IO (Action, State)
 takeFromDeck gs = do
@@ -175,9 +184,12 @@ setupDefuseCards gs = do
   gs' <- updateDeck gs deck'
   dealCardToAllPlayers (head for_distro) gs' $ players gs'
 
--- TODO: Implement this function
 drawNCards :: Int -> State -> Player -> IO State
-drawNCards n gs player = return gs
+drawNCards n gs player = do
+  let (hand', deck') = splitAt n $ deck gs
+  player' <- updateHand player (hand player ++ hand')
+  gs' <- updatePlayer gs player player'
+  updateDeck gs' deck'
 
 dealCardToAllPlayers :: Card -> State -> [ Player ] -> IO State
 dealCardToAllPlayers card gs [] = return (gs)
@@ -243,9 +255,14 @@ updateDiscardS gs d_stack' = return (gs { d_stack = d_stack' })
 updateCurPlayer :: State -> Player -> IO State
 updateCurPlayer gs player = return (gs { cur_player = player })
 
--- TODO: Implement this function
 getNextPlayer :: State -> Player -> Player
-getNextPlayer gs player = head $ players gs
+getNextPlayer gs player
+  | (player == noPlayer) = head $ players gs
+  | otherwise = do
+      let i = fromJust $ elemIndex player (players gs)
+      if (i + 1) >= (length $ players gs)
+        then head $ players gs
+        else (players gs) !! (i + 1)
 
 pickNextPlayer :: State -> IO State
 pickNextPlayer gs = updateCurPlayer gs $ getNextPlayer gs (cur_player gs)
@@ -258,3 +275,18 @@ useSimpleStrategy gs future_cards hand
   | otherwise = (TakeFromDeck, [ ])
 
 -- ADD extra codes after this line, so it's easy to rebase or merge code changes in Git --
+
+generateHumanPlayers :: Int -> [ Player ]
+generateHumanPlayers n | (n > 0) = [ HPlayer {name = "Human " ++ show n, hand = [ ]} ] ++ generateHumanPlayers (n-1)
+                       | otherwise = [ ]
+
+dealToAllPlayers :: Int -> State -> [ Player ] -> IO State
+dealToAllPlayers n gs [] = return (gs)
+dealToAllPlayers n gs ps = do
+  let (ps', ps'') = splitAt 1 ps
+  gs' <- drawNCards n gs $ head ps'
+  dealToAllPlayers n gs' ps''
+
+removeFromCurHand :: [ Card ] -> State -> IO State
+removeFromCurHand cards gs = updateCurHand gs hand' where
+  (d_cards, hand') = takeCards cards (curHand gs)
